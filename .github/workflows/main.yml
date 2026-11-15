@@ -1,0 +1,32 @@
+name: Build TeleCare APK & Web
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      - name: Generate Flutter Project & Inject Code
+        run: |
+          flutter create telecare_app
+          cp main.dart telecare_app/lib/main.dart
+          cd telecare_app
+          flutter build apk --release
+          flutter build web --release
+      - name: Upload Android APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TeleCare-Android-APK
+          path: telecare_app/build/app/outputs/flutter-apk/app-release.apk
+      - name: Upload Web Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: TeleCare-Web-Host
+          path: telecare_app/build/web/
